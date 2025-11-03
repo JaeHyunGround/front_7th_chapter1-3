@@ -34,7 +34,7 @@ test_suite: 알림 아이콘이 있는 일정 드래그
 ### 검증 포인트 1: 알림 아이콘 유지
 
 ```
-Given: 2025-11-01의 "팀 회의" 일정에 알림이 설정되어 있음 (notifiedEvents에 포함)
+Given: 2025-10-01의 "팀 회의" 일정에 알림이 설정되어 있음 (notifiedEvents에 포함)
 When: 해당 일정을 드래그
 Then: 드래그 중인 복사본에도 Notifications 아이콘이 표시됨
 And: 빨간색 스타일(#ffebee 배경, #d32f2f 텍스트)이 유지됨

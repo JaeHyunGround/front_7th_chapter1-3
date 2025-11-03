@@ -275,13 +275,73 @@ function App() {
     document.body.style.cursor = 'not-allowed';
   };
 
-  const handleDrop = (e: ReactDragEvent<HTMLElement>) => {
+  const handleDrop = async (e: ReactDragEvent<HTMLElement>, targetDateString: string) => {
     e.preventDefault();
     const target = e.currentTarget as HTMLElement;
     target.removeAttribute('data-droppable');
     target.style.backgroundColor = '';
 
-    // TODO: 실제 드롭 처리 로직 (다음 스토리에서 구현)
+    // dataTransfer에서 이벤트 ID 가져오기 (상태와 함께 사용)
+    const eventId = draggedEventId || e.dataTransfer.getData('text/plain');
+    if (!eventId) return;
+
+    // 드래그된 이벤트 찾기
+    const draggedEvent = events.find((event) => event.id === eventId);
+    if (!draggedEvent) return;
+
+    // 동일 날짜에 드롭하면 아무것도 안함
+    if (draggedEvent.date === targetDateString) {
+      // 드래그 상태 초기화 (동일 날짜 드롭도 상태 초기화 필요)
+      setDraggedEventId(null);
+      setDragOverCellDate(null);
+
+      // 드래그 중인 요소의 스타일 복원
+      const draggedElement = document.querySelector('[data-dragging="true"]') as HTMLElement;
+      if (draggedElement) {
+        draggedElement.style.opacity = '1';
+        draggedElement.removeAttribute('data-dragging');
+      }
+      return;
+    }
+
+    // 날짜만 변경하고 시간은 유지
+    const updatedEvent: Event = {
+      ...draggedEvent,
+      date: targetDateString,
+    };
+
+    try {
+      // PUT API 호출
+      const response = await fetch(`/api/events/${draggedEvent.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedEvent),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update event');
+      }
+
+      // 이벤트 목록 갱신
+      await fetchEvents();
+
+      // 성공 스낵바 표시
+      enqueueSnackbar('일정이 이동되었습니다', { variant: 'success' });
+
+      // 드래그 상태 초기화
+      setDraggedEventId(null);
+      setDragOverCellDate(null);
+
+      // 드래그 중인 요소의 스타일 복원
+      const draggedElement = document.querySelector('[data-dragging="true"]') as HTMLElement;
+      if (draggedElement) {
+        draggedElement.style.opacity = '1';
+        draggedElement.removeAttribute('data-dragging');
+      }
+    } catch (error) {
+      console.error('Error moving event:', error);
+      enqueueSnackbar('일정 이동 실패', { variant: 'error' });
+    }
   };
 
   const addOrUpdateEvent = async () => {
@@ -470,7 +530,7 @@ function App() {
                         role="cell"
                         onDragOver={(e) => day && handleDragOverCell(e, dateString)}
                         onDragLeave={handleDragLeaveCell}
-                        onDrop={handleDrop}
+                        onDrop={(e) => day && handleDrop(e, dateString)}
                         style={{
                           backgroundColor:
                             dragOverCellDate === dateString ? '#e3f2fd' : 'transparent',

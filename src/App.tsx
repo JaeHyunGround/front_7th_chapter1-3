@@ -1,12 +1,10 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  Close,
-  Delete,
-  Edit,
-  Notifications,
-  Repeat,
-} from '@mui/icons-material';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Close from '@mui/icons-material/Close';
+import Delete from '@mui/icons-material/Delete';
+import Edit from '@mui/icons-material/Edit';
+import Notifications from '@mui/icons-material/Notifications';
+import Repeat from '@mui/icons-material/Repeat';
 import {
   Alert,
   AlertTitle,
@@ -36,7 +34,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { DragEvent as ReactDragEvent, useState } from 'react';
 
 import RecurringEventDialog from './components/RecurringEventDialog.tsx';
 import { useCalendarView } from './hooks/useCalendarView.ts';
@@ -165,6 +163,11 @@ function App() {
   const [recurringEditMode, setRecurringEditMode] = useState<boolean | null>(null); // true = single, false = all
   const [recurringDialogMode, setRecurringDialogMode] = useState<'edit' | 'delete'>('edit');
 
+  // 드래그 앤 드롭 상태
+  const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
+  const [dragOverCellDate, setDragOverCellDate] = useState<string | null>(null);
+  const [isDraggingOverCalendar, setIsDraggingOverCalendar] = useState(false);
+
   const { enqueueSnackbar } = useSnackbar();
 
   const handleRecurringConfirm = async (editSingleOnly: boolean) => {
@@ -214,6 +217,71 @@ function App() {
       // Regular event deletion
       deleteEvent(event.id);
     }
+  };
+
+  // 드래그 앤 드롭 핸들러
+  const handleDragStart = (e: ReactDragEvent<HTMLElement>, eventId: string) => {
+    setDraggedEventId(eventId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', eventId);
+
+    // 드래그 중인 요소에 스타일 적용
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '0.5';
+    target.setAttribute('data-dragging', 'true');
+  };
+
+  const handleDragEnd = (e: ReactDragEvent<HTMLElement>) => {
+    setDraggedEventId(null);
+    setDragOverCellDate(null);
+    setIsDraggingOverCalendar(false);
+
+    // 드래그 종료 시 스타일 복원
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '1';
+    target.removeAttribute('data-dragging');
+
+    // body 커서 스타일 복원
+    document.body.style.cursor = '';
+  };
+
+  const handleDragOverCell = (e: ReactDragEvent<HTMLElement>, dateString: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverCellDate(dateString);
+    setIsDraggingOverCalendar(true);
+
+    // 셀에 droppable 속성과 배경색 즉시 추가 (DOM 직접 조작)
+    const target = e.currentTarget as HTMLElement;
+    target.setAttribute('data-droppable', 'true');
+    target.style.backgroundColor = '#e3f2fd';
+
+    // body 커서 스타일 제거 (캘린더 내부)
+    document.body.style.cursor = '';
+  };
+
+  const handleDragLeaveCell = (e: ReactDragEvent<HTMLElement>) => {
+    const target = e.currentTarget as HTMLElement;
+    target.removeAttribute('data-droppable');
+    target.style.backgroundColor = '';
+  };
+
+  const handleDragOverOutside = (e: ReactDragEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOverCalendar(false);
+
+    // 캘린더 외부일 때 not-allowed 커서 표시 (즉시 반영)
+    document.body.style.cursor = 'not-allowed';
+  };
+
+  const handleDrop = (e: ReactDragEvent<HTMLElement>) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLElement;
+    target.removeAttribute('data-droppable');
+    target.style.backgroundColor = '';
+
+    // TODO: 실제 드롭 처리 로직 (다음 스토리에서 구현)
   };
 
   const addOrUpdateEvent = async () => {
@@ -399,6 +467,14 @@ function App() {
                     return (
                       <TableCell
                         key={dayIndex}
+                        role="cell"
+                        onDragOver={(e) => day && handleDragOverCell(e, dateString)}
+                        onDragLeave={handleDragLeaveCell}
+                        onDrop={handleDrop}
+                        style={{
+                          backgroundColor:
+                            dragOverCellDate === dateString ? '#e3f2fd' : 'transparent',
+                        }}
                         sx={{
                           height: '120px',
                           verticalAlign: 'top',
@@ -426,6 +502,9 @@ function App() {
                               return (
                                 <Box
                                   key={event.id}
+                                  draggable
+                                  onDragStart={(e) => handleDragStart(e, event.id)}
+                                  onDragEnd={handleDragEnd}
                                   sx={{
                                     p: 0.5,
                                     my: 0.5,
@@ -436,6 +515,7 @@ function App() {
                                     minHeight: '18px',
                                     width: '100%',
                                     overflow: 'hidden',
+                                    cursor: 'grab',
                                   }}
                                 >
                                   <Stack direction="row" spacing={1} alignItems="center">
@@ -705,6 +785,7 @@ function App() {
           data-testid="event-list"
           spacing={2}
           sx={{ width: '30%', height: '100%', overflowY: 'auto' }}
+          onDragOver={handleDragOverOutside}
         >
           <FormControl fullWidth>
             <FormLabel htmlFor="search">일정 검색</FormLabel>

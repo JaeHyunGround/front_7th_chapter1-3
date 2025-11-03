@@ -167,16 +167,85 @@ function App() {
   const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
   const [dragOverCellDate, setDragOverCellDate] = useState<string | null>(null);
   const [isDraggingOverCalendar, setIsDraggingOverCalendar] = useState(false);
+  const [pendingDropTargetDate, setPendingDropTargetDate] = useState<string | null>(null);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleRecurringConfirm = async (editSingleOnly: boolean) => {
     if (recurringDialogMode === 'edit' && pendingRecurringEdit) {
-      // 편집 모드 저장하고 편집 폼으로 이동
-      setRecurringEditMode(editSingleOnly);
-      editEvent(pendingRecurringEdit);
+      // 로컬 변수에 날짜 정보 저장 (상태 초기화 전)
+      const targetDate = pendingDropTargetDate;
+
+      const eventToEdit = targetDate
+        ? { ...pendingRecurringEdit, date: targetDate }
+        : pendingRecurringEdit;
+
+      // 다이얼로그 먼저 닫기
       setIsRecurringDialogOpen(false);
       setPendingRecurringEdit(null);
+      setPendingDropTargetDate(null);
+
+      // 드래그 앤 드롭인 경우 바로 API 호출
+      if (targetDate) {
+        try {
+          let response;
+          if (editSingleOnly) {
+            // 단일 수정: PUT /api/events/:id
+            response = await fetch(`/api/events/${eventToEdit.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(eventToEdit),
+            });
+          } else {
+            // 전체 수정: 같은 repeat.id를 가진 모든 이벤트 찾아서 날짜 변경
+            const repeatId = pendingRecurringEdit.repeat.id;
+            if (!repeatId) {
+              throw new Error('Repeat ID not found');
+            }
+
+            // 같은 repeat.id를 가진 모든 이벤트 찾기
+            const seriesEvents = events.filter((e) => e.repeat.id === repeatId);
+
+            // 날짜 오프셋 계산 (일 단위)
+            const originalDate = new Date(pendingRecurringEdit.date);
+            const newDate = new Date(targetDate);
+            const dayOffset = Math.round(
+              (newDate.getTime() - originalDate.getTime()) / (1000 * 60 * 60 * 24)
+            );
+
+            // 모든 반복 일정의 날짜를 오프셋만큼 이동
+            const updatedEvents = seriesEvents.map((event) => {
+              const eventDate = new Date(event.date);
+              eventDate.setDate(eventDate.getDate() + dayOffset);
+              return {
+                ...event,
+                date: eventDate.toISOString().split('T')[0],
+              };
+            });
+
+            // PUT /api/events-list로 여러 이벤트 한 번에 업데이트
+            response = await fetch('/api/events-list', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ events: updatedEvents }),
+            });
+          }
+
+          if (!response.ok) {
+            throw new Error('Failed to update event');
+          }
+
+          await fetchEvents();
+          enqueueSnackbar('일정이 이동되었습니다', { variant: 'success' });
+        } catch (error) {
+          console.error('Error moving event:', error);
+          enqueueSnackbar('일정 이동 실패', { variant: 'error' });
+        }
+      } else {
+        // 편집 버튼에서 온 경우: 편집 모드 저장 후 편집 폼 열기
+        setRecurringEditMode(editSingleOnly);
+        editEvent(eventToEdit);
+      }
     } else if (recurringDialogMode === 'delete' && pendingRecurringDelete) {
       // 반복 일정 삭제 처리
       try {
@@ -292,6 +361,26 @@ function App() {
     // 동일 날짜에 드롭하면 아무것도 안함
     if (draggedEvent.date === targetDateString) {
       // 드래그 상태 초기화 (동일 날짜 드롭도 상태 초기화 필요)
+      setDraggedEventId(null);
+      setDragOverCellDate(null);
+
+      // 드래그 중인 요소의 스타일 복원
+      const draggedElement = document.querySelector('[data-dragging="true"]') as HTMLElement;
+      if (draggedElement) {
+        draggedElement.style.opacity = '1';
+        draggedElement.removeAttribute('data-dragging');
+      }
+      return;
+    }
+
+    // 반복 일정인 경우 다이얼로그 표시
+    if (isRecurringEvent(draggedEvent)) {
+      setPendingRecurringEdit(draggedEvent);
+      setPendingDropTargetDate(targetDateString);
+      setRecurringDialogMode('edit');
+      setIsRecurringDialogOpen(true);
+
+      // 드래그 상태 초기화
       setDraggedEventId(null);
       setDragOverCellDate(null);
 

@@ -52,7 +52,14 @@ export function getWeeksAtMonth(currentDate: Date) {
 }
 
 export function getEventsForDay(events: Event[], date: number): Event[] {
-  return events.filter((event) => new Date(event.date).getDate() === date);
+  return events
+    .filter((event) => new Date(event.date).getDate() === date)
+    .sort((a, b) => {
+      // 시작 시간 순으로 정렬
+      if (a.startTime < b.startTime) return -1;
+      if (a.startTime > b.startTime) return 1;
+      return 0;
+    });
 }
 
 export function formatWeek(targetDate: Date) {

@@ -572,6 +572,12 @@ function App() {
                         .filter(
                           (event) => new Date(event.date).toDateString() === date.toDateString()
                         )
+                        .sort((a, b) => {
+                          // 시작 시간 순으로 정렬
+                          if (a.startTime < b.startTime) return -1;
+                          if (a.startTime > b.startTime) return 1;
+                          return 0;
+                        })
                         .map((event) => {
                           const isNotified = notifiedEvents.includes(event.id);
                           const isRepeating = event.repeat.type !== 'none';

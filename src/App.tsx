@@ -168,6 +168,7 @@ function App() {
   const [dragOverCellDate, setDragOverCellDate] = useState<string | null>(null);
   const [isDraggingOverCalendar, setIsDraggingOverCalendar] = useState(false);
   const [pendingDropTargetDate, setPendingDropTargetDate] = useState<string | null>(null);
+  const [pendingOverlapDropEvent, setPendingOverlapDropEvent] = useState<Event | null>(null);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -399,8 +400,26 @@ function App() {
       date: targetDateString,
     };
 
+    // 겹침 감지: 드롭 대상 날짜/시간대에 겹치는 일정이 있는지 확인
+    const overlapping = findOverlappingEvents(updatedEvent, events);
+    if (overlapping.length > 0) {
+      setOverlappingEvents(overlapping);
+      setPendingOverlapDropEvent(updatedEvent);
+      setIsOverlapDialogOpen(true);
+
+      // 드래그 상태 초기화 및 스타일 복원
+      setDraggedEventId(null);
+      setDragOverCellDate(null);
+      const draggedElement = document.querySelector('[data-dragging="true"]') as HTMLElement;
+      if (draggedElement) {
+        draggedElement.style.opacity = '1';
+        draggedElement.removeAttribute('data-dragging');
+      }
+      return;
+    }
+
     try {
-      // PUT API 호출
+      // 겹침이 없으면 바로 업데이트
       const response = await fetch(`/api/events/${draggedEvent.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -411,17 +430,11 @@ function App() {
         throw new Error('Failed to update event');
       }
 
-      // 이벤트 목록 갱신
       await fetchEvents();
-
-      // 성공 스낵바 표시
       enqueueSnackbar('일정이 이동되었습니다', { variant: 'success' });
 
-      // 드래그 상태 초기화
       setDraggedEventId(null);
       setDragOverCellDate(null);
-
-      // 드래그 중인 요소의 스타일 복원
       const draggedElement = document.querySelector('[data-dragging="true"]') as HTMLElement;
       if (draggedElement) {
         draggedElement.style.opacity = '1';
@@ -1014,7 +1027,13 @@ function App() {
         </Stack>
       </Stack>
 
-      <Dialog open={isOverlapDialogOpen} onClose={() => setIsOverlapDialogOpen(false)}>
+      <Dialog
+        open={isOverlapDialogOpen}
+        onClose={() => {
+          setIsOverlapDialogOpen(false);
+          setPendingOverlapDropEvent(null);
+        }}
+      >
         <DialogTitle>일정 겹침 경고</DialogTitle>
         <DialogContent>
           <DialogContentText>다음 일정과 겹칩니다:</DialogContentText>
@@ -1026,27 +1045,55 @@ function App() {
           <DialogContentText>계속 진행하시겠습니까?</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsOverlapDialogOpen(false)}>취소</Button>
           <Button
-            color="error"
             onClick={() => {
               setIsOverlapDialogOpen(false);
-              saveEvent({
-                id: editingEvent ? editingEvent.id : undefined,
-                title,
-                date,
-                startTime,
-                endTime,
-                description,
-                location,
-                category,
-                repeat: {
-                  type: isRepeating ? repeatType : 'none',
-                  interval: repeatInterval,
-                  endDate: repeatEndDate || undefined,
-                },
-                notificationTime,
-              });
+              setPendingOverlapDropEvent(null);
+            }}
+          >
+            취소
+          </Button>
+          <Button
+            color="error"
+            onClick={async () => {
+              setIsOverlapDialogOpen(false);
+              if (pendingOverlapDropEvent) {
+                try {
+                  const response = await fetch(`/api/events/${pendingOverlapDropEvent.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pendingOverlapDropEvent),
+                  });
+                  if (!response.ok) {
+                    throw new Error('Failed to update event');
+                  }
+                  await fetchEvents();
+                  enqueueSnackbar('일정이 이동되었습니다', { variant: 'success' });
+                } catch (error) {
+                  console.error('Error moving event:', error);
+                  enqueueSnackbar('일정 이동 실패', { variant: 'error' });
+                } finally {
+                  setPendingOverlapDropEvent(null);
+                }
+              } else {
+                // 폼 편집 시 겹침 확인으로 열린 경우 기존 동작 유지
+                saveEvent({
+                  id: editingEvent ? editingEvent.id : undefined,
+                  title,
+                  date,
+                  startTime,
+                  endTime,
+                  description,
+                  location,
+                  category,
+                  repeat: {
+                    type: isRepeating ? repeatType : 'none',
+                    interval: repeatInterval,
+                    endDate: repeatEndDate || undefined,
+                  },
+                  notificationTime,
+                });
+              }
             }}
           >
             계속 진행

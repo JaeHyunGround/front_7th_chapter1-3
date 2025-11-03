@@ -167,7 +167,6 @@ function App() {
   // 드래그 앤 드롭 상태
   const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
   const [dragOverCellDate, setDragOverCellDate] = useState<string | null>(null);
-  const [isDraggingOverCalendar, setIsDraggingOverCalendar] = useState(false);
   const [pendingDropTargetDate, setPendingDropTargetDate] = useState<string | null>(null);
   const [pendingOverlapDropEvent, setPendingOverlapDropEvent] = useState<Event | null>(null);
 
@@ -305,7 +304,6 @@ function App() {
   const handleDragEnd = (e: ReactDragEvent<HTMLElement>) => {
     setDraggedEventId(null);
     setDragOverCellDate(null);
-    setIsDraggingOverCalendar(false);
 
     // 드래그 종료 시 스타일 복원
     const target = e.currentTarget as HTMLElement;
@@ -320,7 +318,6 @@ function App() {
     e.preventDefault();
     e.stopPropagation();
     setDragOverCellDate(dateString);
-    setIsDraggingOverCalendar(true);
 
     // 셀에 droppable 속성과 배경색 즉시 추가 (DOM 직접 조작)
     const target = e.currentTarget as HTMLElement;
@@ -340,7 +337,6 @@ function App() {
   const handleDragOverOutside = (e: ReactDragEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDraggingOverCalendar(false);
 
     // 캘린더 외부일 때 not-allowed 커서 표시 (즉시 반영)
     document.body.style.cursor = 'not-allowed';

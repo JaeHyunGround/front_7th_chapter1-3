@@ -552,6 +552,7 @@ function App() {
                     <TableCell
                       key={date.toISOString()}
                       role="cell"
+                      onClick={() => handleDateCellClick(dateString, date.getDate())}
                       onDragOver={(e) => handleDragOverCell(e, dateString)}
                       onDragLeave={handleDragLeaveCell}
                       onDrop={(e) => handleDrop(e, dateString)}

@@ -443,6 +443,13 @@ function App() {
     }
   };
 
+  const handleDateCellClick = (dateString: string, day: number | null) => {
+    // 편집 모드가 아니고, 드래그 중이 아니고, 유효한 날짜인 경우에만 처리
+    if (!editingEvent && !draggedEventId && day !== null && dateString) {
+      setDate(dateString);
+    }
+  };
+
   const addOrUpdateEvent = async () => {
     if (!title || !date || !startTime || !endTime) {
       enqueueSnackbar('필수 정보를 모두 입력해주세요.', { variant: 'error' });
@@ -652,6 +659,7 @@ function App() {
                       <TableCell
                         key={dayIndex}
                         role="cell"
+                        onClick={() => handleDateCellClick(dateString, day)}
                         onDragOver={(e) => day && handleDragOverCell(e, dateString)}
                         onDragLeave={handleDragLeaveCell}
                         onDrop={(e) => day && handleDrop(e, dateString)}

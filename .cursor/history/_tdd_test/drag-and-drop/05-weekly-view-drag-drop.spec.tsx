@@ -6,9 +6,9 @@ import { http, HttpResponse } from 'msw';
 import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
 
-import App from '../../App';
-import { server } from '../../setupTests';
-import { Event as EventType } from '../../types';
+import App from '../../../../src/App';
+import { server } from '../../../../src/setupTests';
+import { Event as EventType } from '../../../../src/types';
 
 const theme = createTheme();
 
@@ -92,7 +92,7 @@ const switchToWeekView = async () => {
   await screen.findByTestId('week-view');
 };
 
-describe('[Story] 주간 뷰 드래그 앤 드롭', () => {
+describe.skip('[Story] 주간 뷰 드래그 앤 드롭', () => {
   // Given: 주간 뷰로 전환됨, 2025-10-01(수) 일정 존재 (setupTests.ts에서 기준 날짜 고정)
 
   const baseEvent: EventType = {

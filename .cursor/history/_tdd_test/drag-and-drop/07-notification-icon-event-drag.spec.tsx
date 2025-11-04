@@ -6,9 +6,9 @@ import { http, HttpResponse } from 'msw';
 import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
 
-import App from '../../App';
-import { server } from '../../setupTests';
-import { Event as EventType } from '../../types';
+import App from '../../../../src/App';
+import { server } from '../../../../src/setupTests';
+import { Event as EventType } from '../../../../src/types';
 
 const theme = createTheme();
 
@@ -73,7 +73,7 @@ const setup = (element: ReactElement) => {
   };
 };
 
-describe('[Story] 알림 아이콘이 있는 일정 드래그', () => {
+describe.skip('[Story] 알림 아이콘이 있는 일정 드래그', () => {
   describe('테스트 케이스 1: 알림이 설정된 일정을 드래그할 수 있다', () => {
     it('알림이 설정된 일정(notificationTime > 0)을 드래그하면 투명도가 0.5로 변경된다', async () => {
       // Given: 2025-10-15의 "기존 회의" 일정에 알림이 설정되어 있음 (notificationTime: 10)

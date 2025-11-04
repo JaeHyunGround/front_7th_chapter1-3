@@ -6,9 +6,9 @@ import { http, HttpResponse } from 'msw';
 import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
 
-import App from '../../App';
-import { server } from '../../setupTests';
-import { Event as EventType } from '../../types';
+import App from '../../../../src/App';
+import { server } from '../../../../src/setupTests';
+import { Event as EventType } from '../../../../src/types';
 
 const theme = createTheme();
 
@@ -79,7 +79,7 @@ const setup = (element: ReactElement) => {
  * - "취소" 선택 시 API 호출 없음 및 원래 날짜 유지
  * - "계속 진행" 선택 시 API 호출 및 새 날짜로 이동
  */
-describe('[Story] 일정 겹침 감지 (D&D)', () => {
+describe.skip('[Story] 일정 겹침 감지 (D&D)', () => {
   const existingOnTarget: EventType = {
     id: '1',
     title: '기존 회의',

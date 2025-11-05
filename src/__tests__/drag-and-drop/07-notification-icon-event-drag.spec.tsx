@@ -6,9 +6,9 @@ import { http, HttpResponse } from 'msw';
 import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
 
-import App from '../../../../src/App';
-import { server } from '../../../../src/setupTests';
-import { Event as EventType } from '../../../../src/types';
+import App from '../../App';
+import { server } from '../../setupTests';
+import { Event as EventType } from '../../types';
 
 const theme = createTheme();
 

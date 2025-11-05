@@ -5,7 +5,7 @@ import { userEvent } from '@testing-library/user-event';
 import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
 
-import App from '../../../../src/App';
+import App from '../../App';
 
 const theme = createTheme();
 

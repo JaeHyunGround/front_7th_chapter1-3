@@ -1,7 +1,4 @@
-import Notifications from '@mui/icons-material/Notifications';
-import Repeat from '@mui/icons-material/Repeat';
 import {
-  Box,
   Stack,
   Table,
   TableBody,
@@ -9,7 +6,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import { DragEvent } from 'react';
@@ -17,6 +13,7 @@ import { DragEvent } from 'react';
 import { eventBoxStyles, weekDays } from '../../constants';
 import { Event, RepeatType } from '../../types';
 import { fillZero, formatWeek } from '../../utils/dateUtils';
+import DateCell from '../DateCell';
 
 export interface WeekViewProps {
   currentDate: Date;
@@ -62,6 +59,7 @@ const WeekView = ({
               ))}
             </TableRow>
           </TableHead>
+          {/* 일정 카드 */}
           <TableBody>
             <TableRow>
               {weekDates.map((date) => {
@@ -108,38 +106,20 @@ const WeekView = ({
                         const isRepeating = event.repeat.type !== 'none';
 
                         return (
-                          <Box
+                          <DateCell
                             key={event.id}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, event.id)}
-                            onDragEnd={handleDragEnd}
+                            event={event}
                             sx={{
                               ...eventBoxStyles.common,
                               ...(isNotified ? eventBoxStyles.notified : eventBoxStyles.normal),
                               cursor: 'grab',
                             }}
-                          >
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              {isNotified && <Notifications fontSize="small" />}
-                              {/* ! TEST CASE */}
-                              {isRepeating && (
-                                <Tooltip
-                                  title={`${event.repeat.interval}${getRepeatTypeLabel(event.repeat.type)}마다 반복${
-                                    event.repeat.endDate ? ` (종료: ${event.repeat.endDate})` : ''
-                                  }`}
-                                >
-                                  <Repeat fontSize="small" />
-                                </Tooltip>
-                              )}
-                              <Typography
-                                variant="caption"
-                                noWrap
-                                sx={{ fontSize: '0.75rem', lineHeight: 1.2 }}
-                              >
-                                {event.title}
-                              </Typography>
-                            </Stack>
-                          </Box>
+                            handleDragStart={handleDragStart}
+                            handleDragEnd={handleDragEnd}
+                            getRepeatTypeLabel={getRepeatTypeLabel}
+                            isNotified={isNotified}
+                            isRepeating={isRepeating}
+                          />
                         );
                       })}
                   </TableCell>

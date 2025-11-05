@@ -5,7 +5,7 @@ import { DragEvent } from 'react';
 
 import { Event, RepeatType } from '../types';
 
-export interface DateCellProps {
+export interface EventBoxProps {
   event: Event;
   sx: SxProps<Theme> | undefined;
   handleDragStart: (e: DragEvent<HTMLElement>, eventId: string) => void;
@@ -15,7 +15,7 @@ export interface DateCellProps {
   isRepeating: boolean;
 }
 
-const DateCell = ({
+const EventBox = ({
   event,
   sx,
   handleDragStart,
@@ -23,7 +23,7 @@ const DateCell = ({
   getRepeatTypeLabel,
   isNotified,
   isRepeating,
-}: DateCellProps) => {
+}: EventBoxProps) => {
   return (
     <Box
       key={event.id}
@@ -52,4 +52,4 @@ const DateCell = ({
   );
 };
 
-export default DateCell;
+export default EventBox;

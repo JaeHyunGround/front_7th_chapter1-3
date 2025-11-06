@@ -134,3 +134,24 @@ export const WithNotifiedAndRepeating: Story = {
     ),
   ],
 };
+export const LongText: Story = {
+  args: {
+    event: {
+      ...sampleEvent,
+      title: '매우 긴 텍스트가 들어가는 일정 제목입니다.',
+    },
+    sx: {
+      ...eventBoxStyles.common,
+      ...eventBoxStyles.normal,
+    },
+    isNotified: false,
+    isRepeating: false,
+  },
+  decorators: [
+    (Story) => (
+      <Box sx={{ width: 200, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+        <Story />
+      </Box>
+    ),
+  ],
+};

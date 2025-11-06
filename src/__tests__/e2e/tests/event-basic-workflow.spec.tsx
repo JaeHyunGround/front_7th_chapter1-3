@@ -24,7 +24,7 @@ test.describe('기본 일정 워크플로우', () => {
     await page.getByRole('textbox', { name: '설명' }).fill('운동');
     await page.getByRole('textbox', { name: '위치' }).fill('축구장');
     await page.getByLabel('카테고리').click();
-    await page.getByRole('option', { name: '업무' }).click();
+    await page.getByRole('option', { name: '개인-option' }).click();
     await page.getByTestId('event-submit-button').click();
 
     await expect(page.getByText('일정이 추가되었습니다')).toBeVisible();

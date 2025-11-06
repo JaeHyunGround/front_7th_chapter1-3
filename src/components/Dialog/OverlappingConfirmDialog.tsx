@@ -11,7 +11,7 @@ import { SetStateAction } from 'react';
 
 import { Event } from '../../types';
 
-interface OverlappingConfirmDialogProps {
+export interface OverlappingConfirmDialogProps {
   isOverlapDialogOpen: boolean;
   setIsOverlapDialogOpen: (value: SetStateAction<boolean>) => void;
   setPendingOverlapDropEvent: (value: SetStateAction<Event | null>) => void;

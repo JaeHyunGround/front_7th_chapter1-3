@@ -4,8 +4,8 @@ import { ChangeEvent, FocusEvent } from 'react';
 interface InputFormProps {
   id: string;
   label: string;
-  value: string;
-  type?: 'text' | 'date' | 'time';
+  value: string | number;
+  type?: 'text' | 'date' | 'time' | 'number';
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   error?: string | boolean | null;

@@ -10,9 +10,7 @@ import {
   AlertTitle,
   Box,
   Button,
-  Checkbox,
   FormControl,
-  FormControlLabel,
   FormLabel,
   IconButton,
   MenuItem,
@@ -29,7 +27,9 @@ import MonthView from './components/CalenderView/MonthView.tsx';
 import WeekView from './components/CalenderView/WeekView.tsx';
 import OverlappingConfirmDialog from './components/Dialog/OverlappingConfirmDialog.tsx';
 import RecurringEventDialog from './components/Dialog/RecurringEventDialog.tsx';
+import CheckboxForm from './components/Form/CheckboxForm.tsx';
 import InputForm from './components/Form/InputForm.tsx';
+import SelectForm from './components/Form/SelectForm.tsx';
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
@@ -584,112 +584,85 @@ function App() {
             onChange={(e) => setLocation(e.target.value)}
           />
 
-          <FormControl fullWidth>
-            <FormLabel id="category-label">카테고리</FormLabel>
-            <Select
-              id="category"
-              size="small"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              aria-labelledby="category-label"
-              aria-label="카테고리"
-            >
-              {categories.map((cat) => (
-                <MenuItem key={cat} value={cat} aria-label={`${cat}-option`}>
-                  {cat}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <SelectForm
+            id={'category'}
+            label={'카테고리'}
+            labelId={'category-label'}
+            value={category}
+            onChange={(value) => setCategory(value as string)}
+            options={categories.map((category) => ({
+              value: category,
+              label: category,
+              ariaLabel: `${category}-option`,
+            }))}
+            ariaLabel={'카테고리'}
+          />
 
           {!editingEvent && (
-            <FormControl>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isRepeating}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setIsRepeating(checked);
-                      if (checked) {
-                        setRepeatType('daily');
-                      } else {
-                        setRepeatType('none');
-                      }
-                    }}
-                  />
+            <CheckboxForm
+              label="반복 일정"
+              checkedValue={isRepeating}
+              onChange={(value) => {
+                setIsRepeating(value);
+                if (value) {
+                  setRepeatType('daily');
+                } else {
+                  setRepeatType('none');
                 }
-                label="반복 일정"
-              />
-            </FormControl>
+              }}
+              fullWidth={false}
+            />
           )}
 
           {/* ! TEST CASE */}
           {isRepeating && !editingEvent && (
             <Stack spacing={2}>
-              <FormControl fullWidth>
-                <FormLabel>반복 유형</FormLabel>
-                <Select
-                  size="small"
-                  value={repeatType}
-                  aria-label="반복 유형"
-                  onChange={(e) => setRepeatType(e.target.value as RepeatType)}
-                >
-                  <MenuItem value="daily" aria-label="daily-option">
-                    매일
-                  </MenuItem>
-                  <MenuItem value="weekly" aria-label="weekly-option">
-                    매주
-                  </MenuItem>
-                  <MenuItem value="monthly" aria-label="monthly-option">
-                    매월
-                  </MenuItem>
-                  <MenuItem value="yearly" aria-label="yearly-option">
-                    매년
-                  </MenuItem>
-                </Select>
-              </FormControl>
+              <SelectForm
+                id={'repeat-type'}
+                label={'반복 유형'}
+                labelId={'repeat-type-label'}
+                ariaLabel={'반복 유형'}
+                value={repeatType}
+                onChange={(value) => setRepeatType(value as RepeatType)}
+                options={[
+                  { value: 'daily', label: '매일', ariaLabel: 'daily-option' },
+                  { value: 'weekly', label: '매주', ariaLabel: 'weekly-option' },
+                  { value: 'monthly', label: '매월', ariaLabel: 'monthly-option' },
+                  { value: 'yearly', label: '매년', ariaLabel: 'yearly-option' },
+                ]}
+              />
               <Stack direction="row" spacing={2}>
-                <FormControl fullWidth>
-                  <FormLabel htmlFor="repeat-interval">반복 간격</FormLabel>
-                  <TextField
-                    id="repeat-interval"
-                    size="small"
-                    type="number"
-                    value={repeatInterval}
-                    onChange={(e) => setRepeatInterval(Number(e.target.value))}
-                    slotProps={{ htmlInput: { min: 1 } }}
-                  />
-                </FormControl>
-                <FormControl fullWidth>
-                  <FormLabel htmlFor="repeat-end-date">반복 종료일</FormLabel>
-                  <TextField
-                    id="repeat-end-date"
-                    size="small"
-                    type="date"
-                    value={repeatEndDate}
-                    onChange={(e) => setRepeatEndDate(e.target.value)}
-                  />
-                </FormControl>
+                <InputForm
+                  id="repeat-interval"
+                  label="반복 간격"
+                  value={repeatInterval}
+                  onChange={(e) => setRepeatInterval(Number(e.target.value))}
+                  type="number"
+                />
+                <InputForm
+                  id="repeat-end-date"
+                  label="반복 종료일"
+                  value={repeatEndDate}
+                  onChange={(e) => setRepeatEndDate(e.target.value)}
+                  type="date"
+                />
               </Stack>
             </Stack>
           )}
 
-          <FormControl fullWidth>
-            <FormLabel htmlFor="notification">알림 설정</FormLabel>
-            <Select
-              id="notification"
-              size="small"
-              value={notificationTime}
-              onChange={(e) => setNotificationTime(Number(e.target.value))}
-            >
-              {notificationOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <SelectForm
+            id={'notification'}
+            label={'알림 설정'}
+            labelId={'notification-label'}
+            value={notificationTime}
+            onChange={(value) => setNotificationTime(Number(value))}
+            options={notificationOptions.map((option) => ({
+              value: option.value,
+              label: option.label,
+              ariaLabel: `${option.value}-option`,
+            }))}
+            ariaLabel={'알림 설정'}
+          />
 
           <Button
             data-testid="event-submit-button"

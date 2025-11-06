@@ -40,7 +40,7 @@ const BUTTON_TEXT = {
 /**
  * Props for the RecurringEventDialog component
  */
-interface RecurringEventDialogProps {
+export interface RecurringEventDialogProps {
   /** Whether the dialog is open */
   open: boolean;
   /** Callback fired when the dialog should be closed */

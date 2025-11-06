@@ -13,7 +13,7 @@ import { DragEvent } from 'react';
 import { eventBoxStyles, weekDays } from '../../constants';
 import { Event, RepeatType } from '../../types';
 import { fillZero, formatWeek } from '../../utils/dateUtils';
-import EventBox from '../EventBox';
+import EventCell from '../EventCell';
 
 export interface WeekViewProps {
   currentDate: Date;
@@ -106,7 +106,7 @@ const WeekView = ({
                         const isRepeating = event.repeat.type !== 'none';
 
                         return (
-                          <EventBox
+                          <EventCell
                             key={event.id}
                             event={event}
                             sx={{

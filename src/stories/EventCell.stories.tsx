@@ -2,13 +2,13 @@ import { Box } from '@mui/material';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 
-import EventBox from '../components/EventBox';
+import EventCell from '../components/EventCell';
 import { eventBoxStyles } from '../constants';
 import { RepeatType } from '../types';
 
 const meta = {
-  title: 'Calendar/EventBox',
-  component: EventBox,
+  title: 'Calendar/EventCell',
+  component: EventCell,
   parameters: {
     layout: 'centered',
   },
@@ -35,7 +35,7 @@ const meta = {
       }
     },
   },
-} satisfies Meta<typeof EventBox>;
+} satisfies Meta<typeof EventCell>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

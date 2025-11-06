@@ -13,7 +13,7 @@ import { DragEvent } from 'react';
 import { weekDays } from '../../constants';
 import { Event, RepeatType } from '../../types';
 import { formatDate, formatMonth } from '../../utils/dateUtils';
-import EventBox from '../EventBox';
+import EventCell from '../EventCell';
 
 export interface MonthViewProps {
   currentDate: Date;
@@ -106,7 +106,7 @@ const MonthView = ({
                             const isRepeating = event.repeat.type !== 'none';
 
                             return (
-                              <EventBox
+                              <EventCell
                                 key={event.id}
                                 event={event}
                                 sx={{

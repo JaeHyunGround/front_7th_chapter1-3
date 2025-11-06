@@ -67,10 +67,10 @@ test.describe('일정 겹침 처리 방식 검증', () => {
   });
 
   test('일정 수정 시 겹치는 일정이 있으면, 경고 다이얼로그가 표시된다.', async ({ page }) => {
-    const editButtons = page.getByLabel('Edit event');
-    await editButtons.first().waitFor({ state: 'visible' });
+    const editButtons = page.getByLabel('Edit event').first();
+    await editButtons.waitFor({ state: 'visible' });
 
-    await editButtons.first().click();
+    await editButtons.click();
 
     await page.getByLabel('날짜').fill('2025-11-08');
     await page.getByLabel('시작 시간').fill('09:30');
@@ -84,10 +84,10 @@ test.describe('일정 겹침 처리 방식 검증', () => {
   test('일정 수정 시 경고 다이얼로그에서 "계속 진행"을 선택하면 일정이 추가된다', async ({
     page,
   }) => {
-    const editButtons = page.getByLabel('Edit event');
-    await editButtons.first().waitFor({ state: 'visible' });
+    const editButtons = page.getByLabel('Edit event').first();
+    await editButtons.waitFor({ state: 'visible' });
 
-    await editButtons.first().click();
+    await editButtons.click();
 
     await page.getByLabel('제목').fill('겹치는 일정 수정');
     await page.getByLabel('날짜').fill('2025-11-08');
@@ -107,10 +107,10 @@ test.describe('일정 겹침 처리 방식 검증', () => {
   test('일정 수정 시 경고 다이얼로그에서 "취소"을 선택하면 일정이 수정되지 않는다', async ({
     page,
   }) => {
-    const editButtons = page.getByLabel('Edit event');
-    await editButtons.first().waitFor({ state: 'visible' });
+    const editButtons = page.getByLabel('Edit event').first();
+    await editButtons.waitFor({ state: 'visible' });
 
-    await editButtons.first().click();
+    await editButtons.click();
 
     await page.getByLabel('제목').fill('겹치는 일정 수정');
     await page.getByLabel('날짜').fill('2025-11-08');

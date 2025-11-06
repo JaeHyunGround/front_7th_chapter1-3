@@ -7,7 +7,7 @@
     "server": "node server.js",
     "server:watch": "node --watch server.js",
     "start": "vite",
-    "dev:e2e": "cross-env TEST_ENV=e2e concurrently \"pnpm run server:watch\" \"pnpm run start\"",
+    "dev:e2e": "TEST_ENV=e2e concurrently \"pnpm run server:watch\" \"pnpm run start\"",
     "dev": "concurrently \"pnpm run server:watch\" \"pnpm run start\"",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -19,8 +19,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "npx chromatic --project-token=chpt_4db75e8f1a00256",
-    "test:e2e": "cross-env TEST_ENV=e2e playwright test",
-    "test:e2e:ui": "cross-env TEST_ENV=e2e playwright test --ui"
+    "test:e2e": "TEST_ENV=e2e playwright test",
+    "test:e2e:ui": "TEST_ENV=e2e playwright test --ui"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",

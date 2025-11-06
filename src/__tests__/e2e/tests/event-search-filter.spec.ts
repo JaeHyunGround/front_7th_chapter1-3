@@ -13,13 +13,31 @@ test.describe('검색 및 필터링 검증', () => {
     await page.goto('/');
   });
 
-  test('검색어를 입력하면, 해당 검색어와 일치하는 일정만 표시된다.', async ({ page }) => {
+  test('제목으로 검색어를 입력하면, 검색어와 일치하는 일정만 표시된다.', async ({ page }) => {
     await page.getByRole('textbox', { name: '일정 검색' }).click();
-    await page.getByRole('textbox', { name: '일정 검색' }).fill('팀');
+    await page.getByRole('textbox', { name: '일정 검색' }).fill('팀 회의');
 
     const eventList = page.getByTestId('event-list');
     const events = eventList.locator('button[aria-label="Edit event"]');
-    await expect(events).toHaveCount(1); // 일정 목록 에서 팀 회의는 1개뿐
+    await expect(events).toHaveCount(1); // 일정 목록 에서 제목이 '팀 회의'인 일정은 1개뿐
+  });
+
+  test('장소로 검색어를 입력하면, 검색어와 일치하는 일정만 표시된다.', async ({ page }) => {
+    await page.getByRole('textbox', { name: '일정 검색' }).click();
+    await page.getByRole('textbox', { name: '일정 검색' }).fill('주간 팀 미팅');
+
+    const eventList = page.getByTestId('event-list');
+    const events = eventList.locator('button[aria-label="Edit event"]');
+    await expect(events).toHaveCount(1); // 일정 목록 에서 설명이 '주간 팀 미팅'인 일정은 1개뿐
+  });
+
+  test('설명으로 검색어를 입력하면, 검색어와 일치하는 일정만 표시된다.', async ({ page }) => {
+    await page.getByRole('textbox', { name: '일정 검색' }).click();
+    await page.getByRole('textbox', { name: '일정 검색' }).fill('회의실 A');
+
+    const eventList = page.getByTestId('event-list');
+    const events = eventList.locator('button[aria-label="Edit event"]');
+    await expect(events).toHaveCount(1); // 일정 목록 에서 장소가 '회의실 A'인 일정은 1개뿐
   });
 
   test('일치하는 검색어가 없으면 "검색 결과가 없습니다."가 표시된다.', async ({ page }) => {

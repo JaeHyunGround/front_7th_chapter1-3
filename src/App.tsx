@@ -11,11 +11,6 @@ import {
   Box,
   Button,
   Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -32,7 +27,8 @@ import { DragEvent as ReactDragEvent, useState } from 'react';
 
 import MonthView from './components/CalenderView/MonthView.tsx';
 import WeekView from './components/CalenderView/WeekView.tsx';
-import RecurringEventDialog from './components/RecurringEventDialog.tsx';
+import OverlappingConfirmDialog from './components/Dialog/OverlappingConfirmDialog.tsx';
+import RecurringEventDialog from './components/Dialog/RecurringEventDialog.tsx';
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
@@ -840,80 +836,52 @@ function App() {
         </Stack>
       </Stack>
 
-      <Dialog
-        open={isOverlapDialogOpen}
-        onClose={() => {
+      <OverlappingConfirmDialog
+        isOverlapDialogOpen={isOverlapDialogOpen}
+        setIsOverlapDialogOpen={setIsOverlapDialogOpen}
+        setPendingOverlapDropEvent={setPendingOverlapDropEvent}
+        overlappingEvents={overlappingEvents}
+        handleConfirmClick={async () => {
           setIsOverlapDialogOpen(false);
-          setPendingOverlapDropEvent(null);
-        }}
-      >
-        <DialogTitle>일정 겹침 경고</DialogTitle>
-        <DialogContent>
-          <DialogContentText>다음 일정과 겹칩니다:</DialogContentText>
-          {overlappingEvents.map((event) => (
-            <Typography key={event.id} sx={{ ml: 1, mb: 1 }}>
-              {event.title} ({event.date} {event.startTime}-{event.endTime})
-            </Typography>
-          ))}
-          <DialogContentText>계속 진행하시겠습니까?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setIsOverlapDialogOpen(false);
-              setPendingOverlapDropEvent(null);
-            }}
-          >
-            취소
-          </Button>
-          <Button
-            color="error"
-            onClick={async () => {
-              setIsOverlapDialogOpen(false);
-              if (pendingOverlapDropEvent) {
-                try {
-                  const response = await fetch(`/api/events/${pendingOverlapDropEvent.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(pendingOverlapDropEvent),
-                  });
-                  if (!response.ok) {
-                    throw new Error('Failed to update event');
-                  }
-                  await fetchEvents();
-                  enqueueSnackbar('일정이 이동되었습니다', { variant: 'success' });
-                } catch (error) {
-                  console.error('Error moving event:', error);
-                  enqueueSnackbar('일정 이동 실패', { variant: 'error' });
-                } finally {
-                  setPendingOverlapDropEvent(null);
-                }
-              } else {
-                // 폼 편집 시 겹침 확인으로 열린 경우 기존 동작 유지
-                saveEvent({
-                  id: editingEvent ? editingEvent.id : undefined,
-                  title,
-                  date,
-                  startTime,
-                  endTime,
-                  description,
-                  location,
-                  category,
-                  repeat: {
-                    type: isRepeating ? repeatType : 'none',
-                    interval: repeatInterval,
-                    endDate: repeatEndDate || undefined,
-                  },
-                  notificationTime,
-                });
+          if (pendingOverlapDropEvent) {
+            try {
+              const response = await fetch(`/api/events/${pendingOverlapDropEvent.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pendingOverlapDropEvent),
+              });
+              if (!response.ok) {
+                throw new Error('Failed to update event');
               }
-            }}
-          >
-            계속 진행
-          </Button>
-        </DialogActions>
-      </Dialog>
-
+              await fetchEvents();
+              enqueueSnackbar('일정이 이동되었습니다', { variant: 'success' });
+            } catch (error) {
+              console.error('Error moving event:', error);
+              enqueueSnackbar('일정 이동 실패', { variant: 'error' });
+            } finally {
+              setPendingOverlapDropEvent(null);
+            }
+          } else {
+            // 폼 편집 시 겹침 확인으로 열린 경우 기존 동작 유지
+            saveEvent({
+              id: editingEvent ? editingEvent.id : undefined,
+              title,
+              date,
+              startTime,
+              endTime,
+              description,
+              location,
+              category,
+              repeat: {
+                type: isRepeating ? repeatType : 'none',
+                interval: repeatInterval,
+                endDate: repeatEndDate || undefined,
+              },
+              notificationTime,
+            });
+          }
+        }}
+      />
       <RecurringEventDialog
         open={isRecurringDialogOpen}
         onClose={() => {

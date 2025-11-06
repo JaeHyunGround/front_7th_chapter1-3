@@ -1,7 +1,7 @@
 import { FormControl, FormLabel, TextField, Tooltip } from '@mui/material';
 import { ChangeEvent, FocusEvent } from 'react';
 
-interface InputFormProps {
+export interface InputFormProps {
   id: string;
   label: string;
   value: string | number;

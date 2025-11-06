@@ -6,7 +6,7 @@ interface SeleceOption {
   ariaLabel?: string;
 }
 
-interface SelectFormProps {
+export interface SelectFormProps {
   id: string;
   label: string;
   labelId: string;

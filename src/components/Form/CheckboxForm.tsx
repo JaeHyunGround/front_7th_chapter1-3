@@ -1,6 +1,6 @@
 import { Checkbox, FormControl, FormControlLabel } from '@mui/material';
 
-interface CheckboxFormProps {
+export interface CheckboxFormProps {
   label: string;
   checkedValue: boolean;
   onChange: (value: boolean) => void;

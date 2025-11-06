@@ -113,6 +113,7 @@ const WeekView = ({
                               ...eventBoxStyles.common,
                               ...(isNotified ? eventBoxStyles.notified : eventBoxStyles.normal),
                               cursor: 'grab',
+                              width: 'auto',
                             }}
                             handleDragStart={handleDragStart}
                             handleDragEnd={handleDragEnd}

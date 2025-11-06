@@ -117,7 +117,6 @@ const MonthView = ({
                                   fontWeight: isNotified ? 'bold' : 'normal',
                                   color: isNotified ? '#d32f2f' : 'inherit',
                                   minHeight: '18px',
-                                  width: '100%',
                                   overflow: 'hidden',
                                   cursor: 'grab',
                                 }}

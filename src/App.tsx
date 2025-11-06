@@ -29,6 +29,7 @@ import MonthView from './components/CalenderView/MonthView.tsx';
 import WeekView from './components/CalenderView/WeekView.tsx';
 import OverlappingConfirmDialog from './components/Dialog/OverlappingConfirmDialog.tsx';
 import RecurringEventDialog from './components/Dialog/RecurringEventDialog.tsx';
+import InputForm from './components/Form/InputForm.tsx';
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
@@ -533,78 +534,55 @@ function App() {
       <Stack direction="row" spacing={6} sx={{ height: '100%' }}>
         <Stack spacing={2} sx={{ width: '20%' }}>
           <Typography variant="h4">{editingEvent ? '일정 수정' : '일정 추가'}</Typography>
+          <InputForm
+            id="title"
+            label="제목"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
 
-          <FormControl fullWidth>
-            <FormLabel htmlFor="title">제목</FormLabel>
-            <TextField
-              id="title"
-              size="small"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <FormLabel htmlFor="date">날짜</FormLabel>
-            <TextField
-              id="date"
-              size="small"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </FormControl>
+          <InputForm
+            id="date"
+            label="날짜"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            type="date"
+          />
 
           <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <FormLabel htmlFor="start-time">시작 시간</FormLabel>
-              <Tooltip title={startTimeError || ''} open={!!startTimeError} placement="top">
-                <TextField
-                  id="start-time"
-                  size="small"
-                  type="time"
-                  value={startTime}
-                  onChange={handleStartTimeChange}
-                  onBlur={() => getTimeErrorMessage(startTime, endTime)}
-                  error={!!startTimeError}
-                />
-              </Tooltip>
-            </FormControl>
-            <FormControl fullWidth>
-              <FormLabel htmlFor="end-time">종료 시간</FormLabel>
-              <Tooltip title={endTimeError || ''} open={!!endTimeError} placement="top">
-                <TextField
-                  id="end-time"
-                  size="small"
-                  type="time"
-                  value={endTime}
-                  onChange={handleEndTimeChange}
-                  onBlur={() => getTimeErrorMessage(startTime, endTime)}
-                  error={!!endTimeError}
-                />
-              </Tooltip>
-            </FormControl>
+            <InputForm
+              id="start-time"
+              label="시작 시간"
+              value={startTime}
+              type="time"
+              onChange={handleStartTimeChange}
+              onBlur={() => getTimeErrorMessage(startTime, endTime)}
+              error={startTimeError}
+            />
+            <InputForm
+              id="end-time"
+              label="종료 시간"
+              value={endTime}
+              type="time"
+              onChange={handleEndTimeChange}
+              onBlur={() => getTimeErrorMessage(startTime, endTime)}
+              error={endTimeError}
+            />
           </Stack>
 
-          <FormControl fullWidth>
-            <FormLabel htmlFor="description">설명</FormLabel>
-            <TextField
-              id="description"
-              size="small"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </FormControl>
+          <InputForm
+            id="description"
+            label="설명"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
 
-          <FormControl fullWidth>
-            <FormLabel htmlFor="location">위치</FormLabel>
-            <TextField
-              id="location"
-              size="small"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-          </FormControl>
+          <InputForm
+            id="location"
+            label="위치"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+          />
 
           <FormControl fullWidth>
             <FormLabel id="category-label">카테고리</FormLabel>
